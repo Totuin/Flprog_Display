@@ -25,7 +25,6 @@ FLProgTextDisplayScreen *FLProgAbstractTexttDisplay::screenAt(uint8_t index)
 
 void FLProgAbstractTexttDisplay::setEnableScreen()
 {
-    Serial.println("setEnableScreenFunction");
     if (_screensCount == 0)
     {
         return;
@@ -260,6 +259,20 @@ void FLProgAbstractTexttDisplay::sendBufferString()
 
 void FLProgAbstractTexttDisplay::prepareSendArray(uint8_t *sendArray, uint8_t value, uint8_t type)
 {
+    uint8_t chip;
+    if (_buffer->row > 2)
+    {
+        chip = 1;
+    }
+    else
+    {
+        chip = 2;
+    }
+    privatePrepareSendArray(sendArray, chip, value, type);
+}
+
+void FLProgAbstractTexttDisplay::privatePrepareSendArray(uint8_t *sendArray, uint8_t chip, uint8_t value, uint8_t type)
+{
     uint8_t sendByte = value & 0xf0;
     uint8_t chipControlBit;
     uint8_t cmdSend;
@@ -271,7 +284,7 @@ void FLProgAbstractTexttDisplay::prepareSendArray(uint8_t *sendArray, uint8_t va
     {
         cmdSend = 0;
     }
-    if (_buffer->row > 2)
+    if (chip == 2)
     {
         chipControlBit = bitRW();
     }

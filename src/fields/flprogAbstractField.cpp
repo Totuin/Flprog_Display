@@ -13,7 +13,7 @@ bool FLProgAbstractField::isNeedShow()
     return checkIsNeedShow();
 }
 
-FLProgTextFieldSendBuffer *FLProgAbstractTextField::getTextBuffer()
+FLProgTextFieldSendBuffer *FLProgAbstractTextDisplayField::getTextBuffer()
 {
     FLProgTextFieldSendBuffer *temp = new FLProgTextFieldSendBuffer;
     temp->col = _col;

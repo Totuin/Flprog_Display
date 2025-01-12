@@ -44,7 +44,6 @@ void FLProgI2c8bitDisplay::pool()
     if ((_status == FLPROG_NOT_REDY_STATUS) || (_status == FLPROG_WAIT_I2C_INIT))
     {
         RT_HW_Base.i2cInitDevice(_device);
-        Serial.println("Init");
         _errorCode = _device.codeErr;
         if (_status == FLPROG_NOT_REDY_STATUS)
         {
@@ -62,12 +61,10 @@ void FLProgI2c8bitDisplay::pool()
     }
     if (_status == FLPROG_WAIT_I2C_FIND_ADDRESS)
     {
-        Serial.println("StartFindAddress");
         if (checkAddress())
         {
             clearDisplay();
             _status = FLPROG_READY_STATUS;
-            Serial.println("SetReadyStatus");
         }
         else
         {
@@ -79,23 +76,19 @@ void FLProgI2c8bitDisplay::pool()
         setEnableScreen();
         if (_enableScreen == 0)
         {
-            Serial.println("_enableScreen == 0");
             return;
         }
     }
     if (_status == FLPROG_WAIT_SEND_DISPLAY_BUFFER)
     {
-        Serial.println("sendBuffer");
         sendBuffer();
         return;
     }
-    Serial.println("showScreen");
     showScreen();
 }
 
 bool FLProgI2c8bitDisplay::checkAddress()
 {
-    Serial.println("StartFunctionFind");
     if ((!_oKCount) || (!_errorCount))
     {
         if (!(RT_HW_Base.getIsTimerMs(_delayStartTime, _delayValue)))
@@ -103,16 +96,11 @@ bool FLProgI2c8bitDisplay::checkAddress()
             return false;
         }
     }
-    Serial.println("FunctionFind");
     RT_HW_Base.i2cFindAddr(_device);
-    Serial.println("EndFunctionFind");
     _errorCode = _device.codeErr;
-    Serial.print("ErrorCode - ");
-    Serial.println(_errorCode);
     _delayStartTime = millis();
     if (_errorCode)
     {
-        Serial.println("FindError");
         _oKCount = 0;
         if (_errorCount > 3)
         {
@@ -126,8 +114,6 @@ bool FLProgI2c8bitDisplay::checkAddress()
             return false;
         }
     }
-    Serial.print("FindOk - ");
-    Serial.println(_oKCount);
     _errorCount = 0;
     if (_oKCount > 2)
     {
@@ -159,9 +145,15 @@ void FLProgI2c8bitDisplay::sendToInterface(uint8_t *sendArray, uint8_t type)
 void FLProgI2c8bitDisplay::clearDisplay()
 {
     uint8_t sendArray[4] = {0, 0, 0, 0};
-    prepareSendArray(sendArray, 0b00000001, FLPROG_TEXT_DISPLAY_SEND_BUFFER_INSTRUCTION_COMMAND);
+    privatePrepareSendArray(sendArray, 1, 0b00000001, FLPROG_TEXT_DISPLAY_SEND_BUFFER_INSTRUCTION_COMMAND);
     sendToInterface(sendArray, FLPROG_TEXT_DISPLAY_SEND_BUFFER_INSTRUCTION_COMMAND);
-    Serial.println("clearDisplay");
+    delayMicroseconds(40);
+    if (chipCount() > 1)
+    {
+        privatePrepareSendArray(sendArray, 2, 0b00000001, FLPROG_TEXT_DISPLAY_SEND_BUFFER_INSTRUCTION_COMMAND);
+        sendToInterface(sendArray, FLPROG_TEXT_DISPLAY_SEND_BUFFER_INSTRUCTION_COMMAND);
+        delayMicroseconds(40);
+    }
 }
 
 FLProgI2c16bitDisplay::FLProgI2c16bitDisplay(uint8_t address, uint8_t busNumber, uint8_t screensCount)

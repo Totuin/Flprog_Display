@@ -28,14 +28,16 @@ protected:
     bool _isBlockShow = false;
 };
 
-class FLProgAbstractTextField : public FLProgAbstractField
+class FLProgAbstractTextDisplayField : public FLProgAbstractField
 {
 public:
     virtual FLProgTextFieldSendBuffer *getTextBuffer();
 
 protected:
-    virtual String bufferString() { return "C"; };
+    virtual String bufferString() { return ""; };
     uint8_t _row = 1;
     uint8_t _col = 1;
-    uint8_t _length = 1;
+    uint8_t _length = 0;
 };
+
+#include "flprogTextDisplayTextField.h"

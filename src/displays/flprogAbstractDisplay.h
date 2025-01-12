@@ -53,6 +53,7 @@ protected:
     void setCursorPointToBuffer();
     void sendBuffer();
     void prepareSendArray(uint8_t *sendArray, uint8_t value, uint8_t type);
+    void privatePrepareSendArray(uint8_t *sendArray, uint8_t chip, uint8_t value, uint8_t type);
     void setCursor();
     void sendBufferString();
     
