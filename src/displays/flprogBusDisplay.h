@@ -50,6 +50,7 @@ public:
     virtual void setPins(uint8_t rsPin, uint8_t ePin, uint8_t rwPin, uint8_t d0Pin, uint8_t d1Pin, uint8_t d2Pin, uint8_t d4Pin, uint8_t d3Pin, uint8_t d5Pin, uint8_t d6Pin, uint8_t d7Pin);
 
 protected:
+    virtual uint8_t bitCount() { return 8; };
     uint8_t _d0Pin = 255;
     uint8_t _d1Pin = 255;
     uint8_t _d2Pin = 255;

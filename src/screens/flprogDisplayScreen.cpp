@@ -45,7 +45,7 @@ FLProgTextDisplayScreen::FLProgTextDisplayScreen(uint8_t fieldsCounts)
     setFieldsCount(fieldsCounts);
 }
 
-FLProgTextFieldSendBuffer *FLProgTextDisplayScreen::getTextBuffer()
+FLProgAbstractField *FLProgTextDisplayScreen::getShowField()
 {
     if (_fieldsCounts == 0)
     {
@@ -57,16 +57,16 @@ FLProgTextFieldSendBuffer *FLProgTextDisplayScreen::getTextBuffer()
         {
             if (_fields[i]->isNeedShow())
             {
-                _tempBuffer = _fields[i]->getTextBuffer();
-                _fields[i]->resetIsNeedShow();
-                _fields[i]->blockShow();
-                return _tempBuffer;
+                _showField = _fields[i];
+                _showField->resetIsNeedShow();
+                _showField->blockShow();
+                return _showField;
             }
         }
     }
-    if (_tempBuffer == 0)
+    if (_showField == 0)
     {
-        return _tempBuffer;
+        return _showField;
     }
     for (uint8_t i = 0; i < _fieldsCounts; i++)
     {
@@ -75,6 +75,6 @@ FLProgTextFieldSendBuffer *FLProgTextDisplayScreen::getTextBuffer()
             _fields[i]->unBlockShow();
         }
     }
-    _tempBuffer = 0;
-    return _tempBuffer;
+    _showField = 0;
+    return _showField;
 }

@@ -2,25 +2,21 @@
 #include <Arduino.h>
 #include "flprogUtilites.h"
 
-struct FLProgTextFieldSendBuffer
-{
-    String buffer = "";
-    uint8_t length;
-    uint8_t row;
-    uint8_t col;
-    uint8_t pointCursor;
-};
+
 
 class FLProgAbstractField
 {
 public:
     void setIsNeedShow() { _isNeedShow = true; };
     void resetIsNeedShow() { _isNeedShow = false; };
-    bool isNeedShow() ;
+    bool isNeedShow();
     void blockShow() { _isBlockShow = true; };
     void unBlockShow() { _isBlockShow = false; };
-    
-    virtual FLProgTextFieldSendBuffer *getTextBuffer() { return 0; };
+
+    virtual uint8_t row() { return 0; };
+    virtual uint8_t col() { return 0; };
+    virtual uint8_t length() { return 0; };
+    virtual String bufferString() { return ""; };
 
 protected:
     virtual bool checkIsNeedShow() { return true; };
@@ -31,10 +27,12 @@ protected:
 class FLProgAbstractTextDisplayField : public FLProgAbstractField
 {
 public:
-    virtual FLProgTextFieldSendBuffer *getTextBuffer();
+    virtual uint8_t row() { return _row; };
+    virtual uint8_t col() { return _col; };
+    virtual uint8_t length() { return _length; };
+    virtual String bufferString() { return ""; };
 
 protected:
-    virtual String bufferString() { return ""; };
     uint8_t _row = 1;
     uint8_t _col = 1;
     uint8_t _length = 0;

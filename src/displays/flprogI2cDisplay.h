@@ -18,8 +18,8 @@ public:
 
 protected:
     bool checkAddress();
-     virtual void clearDisplay() ;
-    virtual void sendToInterface(uint8_t *sendArray, uint8_t type);
+    virtual void clearDisplay();
+    virtual void sendToInterface(uint8_t type);
     uint8_t _errorCount = 0;
     uint8_t _oKCount = 0;
     RT_HW_STRUCT_I2C_DEV _device;
@@ -34,4 +34,5 @@ public:
     FLProgI2c16bitDisplay(uint8_t screensCount) { setScreensCount(screensCount); };
 
 protected:
+    virtual uint8_t bitCount() { return 8; };
 };

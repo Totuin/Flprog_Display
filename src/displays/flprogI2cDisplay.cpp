@@ -50,7 +50,7 @@ void FLProgI2c8bitDisplay::pool()
             _status = FLPROG_WAIT_I2C_INIT;
             return;
         }
-        if (_device.link)
+        if (!_errorCode)
         {
             _status = FLPROG_WAIT_I2C_FIND_ADDRESS;
         }
@@ -61,27 +61,26 @@ void FLProgI2c8bitDisplay::pool()
     }
     if (_status == FLPROG_WAIT_I2C_FIND_ADDRESS)
     {
-        if (checkAddress())
+        if (!checkAddress())
         {
-            clearDisplay();
+            return;
+        }
+        _status = FLPROG_WAIT_DISPLAY_INIT;
+    }
+    if (_status == FLPROG_WAIT_DISPLAY_INIT)
+    {
+        if (initDisplay())
+        {
             _status = FLPROG_READY_STATUS;
         }
-        else
-        {
-            return;
-        }
-    }
-    if (_status == FLPROG_READY_STATUS)
-    {
-        setEnableScreen();
-        if (_enableScreen == 0)
-        {
-            return;
-        }
+        return;
     }
     if (_status == FLPROG_WAIT_SEND_DISPLAY_BUFFER)
     {
-        sendBuffer();
+        if (sendBuffer())
+        {
+            _status = FLPROG_READY_STATUS;
+        }
         return;
     }
     showScreen();
@@ -125,18 +124,18 @@ bool FLProgI2c8bitDisplay::checkAddress()
     return false;
 }
 
-void FLProgI2c8bitDisplay::sendToInterface(uint8_t *sendArray, uint8_t type)
+void FLProgI2c8bitDisplay::sendToInterface(uint8_t type)
 {
     if (type != FLPROG_TEXT_DISPLAY_SEND_BUFFER_TETRA_COMMAND)
     {
-        RT_HW_Base.i2cWriteArr(_device, &sendArray[0], 4);
+        RT_HW_Base.i2cWriteArr(_device, &_sendArray[0], 4);
     }
     else
     {
-        RT_HW_Base.i2cWriteArr(_device, &sendArray[2], 2);
+        RT_HW_Base.i2cWriteArr(_device, &_sendArray[2], 2);
     }
     _errorCode = _device.codeErr;
-    if (!_device.link)
+    if (_errorCode)
     {
         _status = FLPROG_NOT_REDY_STATUS;
     }
@@ -144,14 +143,14 @@ void FLProgI2c8bitDisplay::sendToInterface(uint8_t *sendArray, uint8_t type)
 
 void FLProgI2c8bitDisplay::clearDisplay()
 {
-    uint8_t sendArray[4] = {0, 0, 0, 0};
-    privatePrepareSendArray(sendArray, 1, 0b00000001, FLPROG_TEXT_DISPLAY_SEND_BUFFER_INSTRUCTION_COMMAND);
-    sendToInterface(sendArray, FLPROG_TEXT_DISPLAY_SEND_BUFFER_INSTRUCTION_COMMAND);
+    clearSendArray();
+    privatePrepareSendArray(1, 0b00000001, FLPROG_TEXT_DISPLAY_SEND_BUFFER_INSTRUCTION_COMMAND);
+    sendToInterface(FLPROG_TEXT_DISPLAY_SEND_BUFFER_INSTRUCTION_COMMAND);
     delayMicroseconds(40);
     if (chipCount() > 1)
     {
-        privatePrepareSendArray(sendArray, 2, 0b00000001, FLPROG_TEXT_DISPLAY_SEND_BUFFER_INSTRUCTION_COMMAND);
-        sendToInterface(sendArray, FLPROG_TEXT_DISPLAY_SEND_BUFFER_INSTRUCTION_COMMAND);
+        privatePrepareSendArray(2, 0b00000001, FLPROG_TEXT_DISPLAY_SEND_BUFFER_INSTRUCTION_COMMAND);
+        sendToInterface(FLPROG_TEXT_DISPLAY_SEND_BUFFER_INSTRUCTION_COMMAND);
         delayMicroseconds(40);
     }
 }

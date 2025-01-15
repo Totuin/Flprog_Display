@@ -7,11 +7,11 @@ class FLProgTextDisplayTextField : public FLProgAbstractTextDisplayField
 {
 public:
     FLProgTextDisplayTextField(uint8_t row, uint8_t col, String text);
+    virtual String bufferString();
 
 protected:
     virtual bool checkIsNeedShow();
-    virtual String bufferString();
     String _text = "";
     uint32_t _showTime;
-    uint32_t _showPeriod=2000;
+    uint32_t _showPeriod = 2000;
 };

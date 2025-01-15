@@ -15,7 +15,7 @@ public:
     void addField(FLProgAbstractField *field);
 
     void setIsNeedShowAllFields();
-    FLProgTextFieldSendBuffer *getTextBuffer() { return 0; };
+    virtual FLProgAbstractField *getShowField() { return 0; };
 
 protected:
     FLProgAbstractField **_fields;
@@ -28,8 +28,8 @@ class FLProgTextDisplayScreen : public FLProgAbstractDisplayScreen
 public:
     FLProgTextDisplayScreen(uint8_t fieldsCounts);
     FLProgTextDisplayScreen() {};
-    FLProgTextFieldSendBuffer *getTextBuffer();
+    virtual FLProgAbstractField *getShowField();
 
 protected:
-    FLProgTextFieldSendBuffer *_tempBuffer = 0;
+    FLProgAbstractField *_showField = 0;
 };
