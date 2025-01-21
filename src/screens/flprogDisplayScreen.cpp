@@ -1,15 +1,19 @@
 #include "flprogDisplayScreen.h"
 
-void FLProgAbstractDisplayScreen::setFieldsCount(uint8_t fieldsCounts)
+void FLProgTextDisplayScreen::setFieldsCount(uint8_t fieldsCounts)
 {
     _fieldsCounts = fieldsCounts;
     if (_fieldsCounts != 0)
     {
-        _fields = new FLProgAbstractField *[_fieldsCounts];
+        _fields = new FLProgAbstractTextDisplayField *[_fieldsCounts];
+        for (uint8_t i = 0; i < fieldsCounts; i++)
+        {
+            _fields[i] = 0;
+        }
     }
 }
 
-void FLProgAbstractDisplayScreen::setIsNeedShowAllFields()
+void FLProgTextDisplayScreen::setIsNeedShowAllFields()
 {
     if (_fieldsCounts == 0)
     {
@@ -24,7 +28,7 @@ void FLProgAbstractDisplayScreen::setIsNeedShowAllFields()
     }
 }
 
-void FLProgAbstractDisplayScreen::addField(FLProgAbstractField *field)
+void FLProgTextDisplayScreen::addField(FLProgAbstractTextDisplayField *field)
 {
     if (_fieldsCounts == 0)
     {
@@ -32,7 +36,7 @@ void FLProgAbstractDisplayScreen::addField(FLProgAbstractField *field)
     }
     for (uint8_t i = 0; i < _fieldsCounts; i++)
     {
-        if (_fields[i] != 0)
+        if (_fields[i] == 0)
         {
             _fields[i] = field;
             return;
@@ -45,12 +49,13 @@ FLProgTextDisplayScreen::FLProgTextDisplayScreen(uint8_t fieldsCounts)
     setFieldsCount(fieldsCounts);
 }
 
-FLProgAbstractField *FLProgTextDisplayScreen::getShowField()
+FLProgAbstractTextDisplayField *FLProgTextDisplayScreen::getShowField()
 {
     if (_fieldsCounts == 0)
     {
         return 0;
     }
+
     for (uint8_t i = 0; i < _fieldsCounts; i++)
     {
         if (_fields[i] != 0)
@@ -58,9 +63,12 @@ FLProgAbstractField *FLProgTextDisplayScreen::getShowField()
             if (_fields[i]->isNeedShow())
             {
                 _showField = _fields[i];
-                _showField->resetIsNeedShow();
-                _showField->blockShow();
-                return _showField;
+                if (_showField != 0)
+                {
+                    _showField->resetIsNeedShow();
+                    _showField->blockShow();
+                    return _showField;
+                }
             }
         }
     }
@@ -72,7 +80,7 @@ FLProgAbstractField *FLProgTextDisplayScreen::getShowField()
     {
         if (_fields[i] != 0)
         {
-            _fields[i]->unBlockShow();
+             _fields[i]->unBlockShow();
         }
     }
     _showField = 0;

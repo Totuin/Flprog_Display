@@ -90,7 +90,6 @@ protected:
     FLProgTextDisplayScreen **_screens;
     FLProgTextDisplayScreen *_enableScreen = 0;
     void setScreensCount(uint8_t screensCount);
-    uint8_t freeScreenIndex();
     uint8_t rowIffset();
     void setCursorPointToBuffer();
 

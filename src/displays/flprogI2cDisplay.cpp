@@ -153,6 +153,7 @@ void FLProgI2c8bitDisplay::clearDisplay()
         sendToInterface(FLPROG_TEXT_DISPLAY_SEND_BUFFER_INSTRUCTION_COMMAND);
         delayMicroseconds(40);
     }
+    clearSendArray();
 }
 
 FLProgI2c16bitDisplay::FLProgI2c16bitDisplay(uint8_t address, uint8_t busNumber, uint8_t screensCount)

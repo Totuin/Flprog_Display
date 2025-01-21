@@ -2,12 +2,18 @@
 
 void FLProgAbstractTexttDisplay::addScreen(FLProgTextDisplayScreen *screen)
 {
-    uint8_t index = freeScreenIndex();
-    if (index == 255)
+    if (_screensCount == 0)
     {
         return;
     }
-    _screens[index] = screen;
+    for (uint8_t i = 0; i < _screensCount; i++)
+    {
+        if (_screens[i] == 0)
+        {
+            _screens[i] = screen;
+            return;
+        }
+    }
 }
 
 FLProgTextDisplayScreen *FLProgAbstractTexttDisplay::screenAt(uint8_t index)
@@ -39,7 +45,7 @@ bool FLProgAbstractTexttDisplay::setEnableScreen()
                 {
                     return true;
                 }
-                // clearDisplay();
+                clearDisplay();
                 _enableScreen = _screens[i];
                 _enableScreen->setIsNeedShowAllFields();
                 return true;
@@ -48,27 +54,10 @@ bool FLProgAbstractTexttDisplay::setEnableScreen()
     }
     if (_enableScreen != 0)
     {
-        // clearDisplay();
+        clearDisplay();
         _enableScreen = 0;
     }
     return false;
-}
-
-uint8_t FLProgAbstractTexttDisplay::freeScreenIndex()
-{
-    if (_screensCount == 0)
-    {
-        return 255;
-    }
-    for (uint8_t i = 0; i < _screensCount; i++)
-    {
-        if (_screens[i] == 0)
-        {
-
-            return i;
-        }
-    }
-    return 255;
 }
 
 void FLProgAbstractTexttDisplay::setScreensCount(uint8_t screensCount)
@@ -86,12 +75,13 @@ void FLProgAbstractTexttDisplay::setScreensCount(uint8_t screensCount)
 
 void FLProgAbstractTexttDisplay::createScreen(uint8_t fieldsCounts)
 {
-    uint8_t index = freeScreenIndex();
-    if (index == 255)
+    for (uint8_t i = 0; i < _screensCount; i++)
     {
-        return;
+        if (_screens[i] == 0)
+        {
+            _screens[i] = new FLProgTextDisplayScreen(fieldsCounts);
+        }
     }
-    _screens[index] = new FLProgTextDisplayScreen(fieldsCounts);
 }
 void FLProgAbstractTexttDisplay::createScreen(uint8_t fieldsCounts, uint8_t index)
 {
@@ -140,7 +130,12 @@ void FLProgAbstractTexttDisplay::showScreen()
         }
         return;
     }
-    FLProgAbstractField *showField = _enableScreen->getShowField();
+    if (_enableScreen == 0)
+    {
+        return;
+    }
+    FLProgAbstractField *showField = 0;
+    showField = _enableScreen->getShowField();
     if (showField == 0)
     {
         if (_isNeedUpdateLight)
@@ -157,6 +152,7 @@ void FLProgAbstractTexttDisplay::showScreen()
     setCursorPointToBuffer();
     _isNeedUpdateLight = false;
     _status = FLPROG_WAIT_SEND_DISPLAY_BUFFER;
+    _sendBufferStep == FLPROG_TEXT_DISPLAY_SEND_BUFFER_START_STEP;
 }
 
 void FLProgAbstractTexttDisplay::sendLight()
@@ -223,35 +219,20 @@ uint8_t FLProgAbstractTexttDisplay::rowIffset()
 
 bool FLProgAbstractTexttDisplay::sendBuffer()
 {
-
-    setCursor();
-    sendBufferString();
-
-    // if (_sendBufferStep == FLPROG_TEXT_DISPLAY_SEND_BUFFER_START_STEP)
-    // {
-
-    //  if (!setCursor())
-    // {
-    //      return true;
-    /// }
-
-    //    _sendBufferStep = FLPROG_TEXT_DISPLAY_SEND_BUFFER_SET_CURSOR_STEP;
-    // }
-    // if (_sendBufferStep == FLPROG_TEXT_DISPLAY_SEND_BUFFER_SET_CURSOR_STEP)
-    // {
-    // if (setCursor())
-    //{
-    // _sendBufferStep = FLPROG_TEXT_DISPLAY_SEND_BUFFER_SEND_DATA_STEP;
-    // }
-    return true;
-    // }
-
-    // if (sendBufferString())
-    // {
-    //   _sendBufferStep = FLPROG_TEXT_DISPLAY_SEND_BUFFER_START_STEP;
-    //  return true;
-    // }
-    // return false;
+    if (_sendBufferStep == FLPROG_TEXT_DISPLAY_SEND_BUFFER_START_STEP)
+    {
+        if (setCursor())
+        {
+            _sendBufferStep = FLPROG_TEXT_DISPLAY_SEND_BUFFER_SEND_DATA_STEP;
+        }
+        return false;
+    }
+    if (sendBufferString())
+    {
+        _sendBufferStep = FLPROG_TEXT_DISPLAY_SEND_BUFFER_START_STEP;
+        return true;
+    }
+    return false;
 }
 
 bool FLProgAbstractTexttDisplay::setCursor()
